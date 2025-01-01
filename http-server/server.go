@@ -14,7 +14,7 @@ const (
 type PlayerStore interface {
 	GetPlayerScore(name string) int
 	RecordWin(name string)
-	GetLeague() []Player
+	GetLeague() League
 }
 
 type PlayerServer struct {
@@ -42,9 +42,9 @@ func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p.store.GetLeague())
 }
 
-func (p *PlayerServer) GetLeague() []Player {
+func (p *PlayerServer) GetLeague() League {
 
-	leagueTable := []Player{
+	leagueTable := League{
 		{"Chris", 20},
 	}
 	return leagueTable
@@ -74,12 +74,14 @@ func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	p.store.RecordWin(player)
 }
 
-func GetPlayerScore(name string) string {
-	if name == "Pepper" {
-		return "20"
-	}
-	if name == "Floyd" {
-		return "10"
-	}
-	return ""
-}
+//
+//func GetPlayerScore(name string) string {
+//	if name == "Pepper" {
+//		return "20"
+//	}
+//	if name == "Floyd" {
+//		return "10"
+//	}
+//	return ""
+//}
+//
