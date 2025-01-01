@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/IchiThe2nd/TheApp/http-server/poker"
+	"github.com/IchiThe2nd/TheApp/http-server"
 	// "github.com/IchiThe2nd/TheApp/http-server/poker"
 )
 
