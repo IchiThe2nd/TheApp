@@ -14,6 +14,7 @@ var dummyBlindAlerter = &SpyBlindAlerter{}
 var dummyPlayerStore = &poker.StubPlayerStore{}
 var dummyStdIn = &bytes.Buffer{}
 var dummyStdOut = &bytes.Buffer{}
+var dummyGame = &poker.Game{}
 
 type scheduledAlert struct {
 	at     time.Duration
@@ -37,8 +38,8 @@ func TestCLI(t *testing.T) {
 		in := strings.NewReader("5\nChris\n")
 		//k		in := strings.NewReader("7\n")
 		playerStore := &poker.StubPlayerStore{}
-
-		cli := poker.NewCLI(playerStore, in, dummyStdOut, dummyBlindAlerter)
+		game := poker.NewGame(dummyBlindAlerter, playerStore)
+		cli := poker.NewCLI(in, dummyStdOut, game)
 		cli.PlayPoker()
 
 		poker.AssertPlayerWin(t, playerStore, "Chris")
@@ -46,8 +47,9 @@ func TestCLI(t *testing.T) {
 	t.Run("records cleo from input", func(t *testing.T) {
 		in := strings.NewReader("5\nCleo\n")
 		playerStore := &poker.StubPlayerStore{}
+		game := poker.NewGame(dummyBlindAlerter, playerStore)
 
-		cli := poker.NewCLI(playerStore, in, dummyStdOut, dummyBlindAlerter)
+		cli := poker.NewCLI(in, dummyStdOut, game)
 		cli.PlayPoker()
 
 		poker.AssertPlayerWin(t, playerStore, "Cleo")
@@ -55,10 +57,11 @@ func TestCLI(t *testing.T) {
 	t.Run("it schedules printing in  blind values", func(t *testing.T) {
 		//in := strings.NewReader("Chris wins\n")
 		in := strings.NewReader("5\n")
-		playerstore := &poker.StubPlayerStore{}
+		playerStore := &poker.StubPlayerStore{}
 		blindAlerter := &SpyBlindAlerter{}
 
-		cli := poker.NewCLI(playerstore, in, dummyStdOut, blindAlerter)
+		game := poker.NewGame(blindAlerter, playerStore)
+		cli := poker.NewCLI(in, dummyStdOut, game)
 		cli.PlayPoker()
 
 		cases := []scheduledAlert{
@@ -93,7 +96,8 @@ func TestCLI(t *testing.T) {
 		in := strings.NewReader("7\n")
 		blindAlerter := &SpyBlindAlerter{}
 
-		cli := poker.NewCLI(dummyPlayerStore, in, stdout, blindAlerter)
+		game := poker.NewGame(blindAlerter, dummyPlayerStore)
+		cli := poker.NewCLI(in, stdout, game)
 		cli.PlayPoker()
 
 		got := stdout.String()
