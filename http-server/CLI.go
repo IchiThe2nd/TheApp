@@ -2,57 +2,60 @@ package poker
 
 import (
 	"bufio"
+	"fmt"
 	"io"
+	"strconv"
 	"strings"
-	"time"
 )
 
 type CLI struct {
-	playerStore PlayerStore
-	in          *bufio.Scanner
-	alerter     BlindAlerter
+	in   *bufio.Scanner
+	out  io.Writer
+	game *Game
 }
 
-type BlindAlerter interface {
-	ScheduleAlertAt(duration time.Duration, amount int)
-}
-
-func NewCLI(store PlayerStore, in io.Reader, alerter BlindAlerter) *CLI {
+func NewCLI(store PlayerStore, in io.Reader, out io.Writer, alerter BlindAlerter) *CLI {
 	return &CLI{
-		playerStore: store,
-		in:          bufio.NewScanner(in),
-		alerter:     alerter,
+		in:  bufio.NewScanner(in),
+		out: out,
+		game: &Game{
+			alerter: alerter,
+			store:   store,
+		},
 	}
-
 }
 
-func (cli *CLI) scheduleBlindAlerts() {
+const PlayerPrompt = "Please enter number of players: "
 
-	blinds := []int{100, 200, 300, 400, 500, 600, 800, 1000, 2000, 4000, 8000}
-	blindTime := 0 * time.Second
-	for _, blind := range blinds {
-		cli.alerter.ScheduleAlertAt(blindTime, blind)
-		blindTime = blindTime + 10*time.Minute
-	}
-
-}
+// PlayPoker starts the game.
 func (cli *CLI) PlayPoker() {
+	fmt.Fprint(cli.out, PlayerPrompt)
 
-	cli.scheduleBlindAlerts()
+	numberOfPlayersInput := cli.readLine()
+	numberOfPlayers, _ := strconv.Atoi(strings.Trim(numberOfPlayersInput, "\n"))
 
-	userInput := cli.readLine()			
-		amountGot := alert.amount
-	if amountGot != c.expectedAmount {
-		t.Errorf("got amount %d,want %d", amountGot, c.expectedAmount)
-	}
+	cli.game.Start(numberOfPlayers)
+	winnerInput := cli.readLine()
+	winner := extractWinner(winnerInput)
 
-	gotScheduledTime := alert.at
-	if gotScheduledTime != c.expectedScheduleTime {
-		t.Errorf("got scheduled time of %v, wanted %v", gotScheduledTime, c.expectedScheduleTime)
-	}1)
+	cli.game.Finish(winner)
 }
 
+//	func (cli *CLI) scheduleBlindAlerts(numberOfPlayers int) {
+//		blindIncrement := time.Duration(5+numberOfPlayers) * time.Minute
+//		blinds := []int{100, 200, 300, 400, 500, 600, 800, 1000, 2000, 4000, 8000}
+//		blindTime := 0 * time.Second
+//		for _, blind := range blinds {
+//			cli.alerter.ScheduleAlertAt(blindTime, blind)
+//			blindTime = blindTime + blindIncrement
+//		}
+//
+// }
 func (cli *CLI) readLine() string {
 	cli.in.Scan()
 	return cli.in.Text()
+}
+
+func extractWinner(userInput string) string {
+	return strings.Replace(userInput, " wins\n", "", 1)
 }
