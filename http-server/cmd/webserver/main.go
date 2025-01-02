@@ -3,9 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
-	"github.com/IchiThe2nd/TheApp/http-server"
+	poker "github.com/IchiThe2nd/TheApp/http-server"
 	// "github.com/IchiThe2nd/TheApp/http-server/poker"
 )
 
@@ -14,8 +13,8 @@ const dbFileName = "game.db.json"
 // logs
 func main() {
 
-	store,close, err := poker.FileSystempPlayerStoreFromFile(dbFileName)
-		 err != nil {
+	store, close, err := poker.FileSystempPlayerStoreFromFile(dbFileName)
+	if err != nil {
 		log.Fatal(err)
 	}
 	defer close()
